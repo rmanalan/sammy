@@ -1,6 +1,6 @@
 # Sammy
 
-[http://code.quirkey.com/sammy](http://code.quirkey.com/sammy)
+[http://sammyjs.org](http://sammyjs.org)
 
 ## Description
 
@@ -8,8 +8,8 @@ Sammy is a tiny javascript framework built on top of jQuery inspired by Ruby's [
 
 ## Installation
 
-Download sammy.js and install it in your public javascripts directory.
-Include it in your document AFTER jquery.
+Download Sammy.js and install it in your public javascripts directory.
+Include it in your document AFTER jQuery.
 
 ## Usage
 
@@ -29,7 +29,7 @@ Inside the 'app' function() `this` is the Application. This is where you can con
 
 Above, we defined a `get()` route. When the browser is pointed to `#/` the function passed to that route will be run. Inside the route function, `this` is a Sammy.EventContext. EventContext has a bunch of special methods and properties including a params hash, the ability to redirect, render partials, and more.
 
-Once you've defined an application the only thing left to do is run it. The best-practice behavior is to encapulate `run()` in a document.ready block:
+Once you've defined an application the only thing left to do is run it. The best-practice behavior is to encapsulate `run()` in a document.ready block:
 
     var app = $.sammy(...)
     
@@ -51,7 +51,7 @@ Get it from: [http://jquery.com](http://jquery.com)
 * [Intro](http://code.quirkey.com/sammy)
 * [Docs](http://code.quirkey.com/sammy/docs/)
 * [Examples](http://github.com/quirkey/sammy/tree/master/examples/)
-* [More Resources](http://code.quirkey.com/sammy/resources.html)
+* [More Resources on the Sammy Wiki](http://github.com/quirkey/sammy/wiki/)
 
 ### Keep informed!
 
@@ -79,10 +79,14 @@ Sammy.js was created and is maintained by Aaron Quint <aaron at quirkey.com> wit
 * Mickael Bailly / dready92
 * Rich Manalang / manalang
 * Brian Mitchell / binary42
-  
+* Assaf Arkin / assaf
+* James Rosen / jamesrosen
+* Chris Mytton
+* kbuckler
+* dvv
+* Ben Vinegar / benvinegar
+
 ## License
 
 Sammy is covered by the MIT License. See LICENSE for more information.
-
-Sammy includes code originally created by John Resig ([Class implementation](http://ejohn.org/blog/simple-javascript-inheritance/)) and Greg Borenstien ([srender](http://github.com/atduskgreg/srender/tree/master)).
 

@@ -23,11 +23,11 @@ task :minify => :version do
     min_path        = File.join(dir, path.gsub(/\.js$/, "-#{@version}.min.js"))
     latest_min_path = File.join(dir, path.gsub(/\.js$/, "-latest.min.js"))
     
-    sh "#{java_path} -jar #{yui_path} -o #{min_path} lib/#{path}"
+    `#{java_path} -jar #{yui_path} -o #{min_path} lib/#{path}`
     minified = File.read(min_path)
     prefix = []
-    prefix << "// -- Sammy -- #{path}"
-    prefix << "// http://code.quirkey.com/sammy"
+    prefix << "// -- Sammy.js -- #{path}"
+    prefix << "// http://sammyjs.org"
     prefix << "// Version: #{@version}"
     prefix << "// Built: #{Time.now}"
     File.open(min_path, 'w') do |f|
@@ -71,15 +71,6 @@ task :test do
   system "open #{File.join(File.dirname(__FILE__), 'test', 'index.html')}"
 end
 
-desc 'generate the API documentation'
-task :api do
-  tmp_doc_path = '/tmp/sammy.api.html'
-  api_template_path = 'site/docs/api_template.html'
-  final_path   = 'site/docs/api.html'
-  File.unlink(tmp_doc_path) if File.readable?(tmp_doc_path)
-  sh "ruby vendor/jsdoc/jsdoc.rb lib/sammy.js lib/plugins/ > #{tmp_doc_path}"
-  sh "cat #{api_template_path} #{tmp_doc_path} > #{final_path}"
-end
 
 desc 'copy files into the site branch'
 task :copy_test_and_examples do
@@ -104,6 +95,16 @@ task :update_version => :version do
   end
 end
 
+desc 'Tag with the current version'
+task :tag => :version do
+  sh "git add ."
+  sh "git commit -a -m'Pushing version #{@version}'"
+  sh "git tag v#{@version}"
+  sh "git push --tags"
+end
+
+task :release => [:minify, :tag, :site]
+
 task :push_site do
   sh "cd site && git add ."
   sh "cd site && git commit -am 'Updated Site via Rake'"
@@ -111,66 +112,13 @@ task :push_site do
 end
 
 desc 'Build the site'
-task :build_site => [:minify, :api, :copy_test_and_examples, :update_version]
+task :build_site => [:copy_test_and_examples, :update_version]
 
 desc 'Build the site, then push it to github'
 task :site => [:build_site, :push_site]
 
-desc "generate a simple sammy app structure at DIR"
-task :generate do 
-  dir = ENV['DIR']
-  name = File.basename(dir)
-  puts "Generating an app #{name} at #{dir}"
-  sammy_root = File.expand_path(File.dirname(__FILE__))
-  include FileUtils
-  path = File.expand_path(dir)
-  mkdir_p(path)
-  mkdir_p(File.join(path, 'javascripts'))
-  mkdir_p(File.join(path, 'stylesheets'))
-  mkdir_p(File.join(path, 'images'))
-  cp_r(File.join(sammy_root, 'lib'), File.join(path, 'javascripts', 'sammy'))
-  cp_r(File.join(sammy_root, 'vendor', 'jquery-1.3.2.js'), File.join(path, 'javascripts', 'jquery-1.3.2.js'))
-  index = <<-EOT
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-
-	<title>#{name}</title>
-
-  <link rel="stylesheet" href="/stylesheets/styles.css" type="text/css" media="screen" charset="utf-8"/>
-
-	<script src="javascripts/jquery-1.3.2.js" type="text/javascript" charset="utf-8"></script>
-	<script src="javascripts/sammy/sammy.js" type="text/javascript" charset="utf-8"></script>
-	<script src="javascripts/#{name}.js" type="text/javascript" charset="utf-8"></script>
-</head>
-
-<body>
-
-
-</body>
-</html>
-EOT
-
-  js = <<-EOT  
-(function($) {
-
-  var app = $.sammy(function() {
-
-
-  });
-
-  $(function() {
-    app.run();
-  });
-
-
-})(jQuery);
-EOT
-  touch(File.join(path, 'stylesheets', 'style.css'))
-  File.open(File.join(path, 'javascripts', "#{name}.js"), 'w') {|f| f << js }
-  File.open(File.join(path, "index.html"), 'w') {|f| f << index }
-  puts "Done."
+desc 'Generate the docs for the current version to DIR'
+task :docs => :version do
+  @version = ENV['VERSION'] if ENV['VERSION']
+  sh "ruby vendor/jsdoc/jsdoc.rb #{ENV['DIR']} #{@version} lib/ lib/plugins/"
 end

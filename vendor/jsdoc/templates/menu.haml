@@ -1,0 +1,11 @@
+%ol.api-menu
+  - docs.each do |klass_name, klass|
+    %li
+      %h3
+        %a{:href => "index.html##{klass[:name]}", :target => 'content'}= klass[:name]
+      - unless klass[:methods].empty?
+        %h4 Methods
+        %ol
+          - klass[:methods].each do |method|
+            %li
+              %a{:href => "index.html##{klass[:name]}-#{method[:name]}", :target => 'content'}= method[:name]
